@@ -1,16 +1,16 @@
 import React from "react"
 import styled from "@emotion/styled"
 import NotionRenderer from "../components/NotionRenderer"
-import usePostQuery from "src/hooks/usePostQuery"
-type Props = {}
+import { ExtendedRecordMap } from "notion-types"
+type Props = {
+  recordMap: ExtendedRecordMap
+}
 
-const PageDetail: React.FC<Props> = () => {
-  const data = usePostQuery()
-
-  if (!data) return null
+const PageDetail: React.FC<Props> = ({ recordMap }) => {
+  if (!recordMap) return <div>Loading...</div>
   return (
     <StyledWrapper>
-      <NotionRenderer recordMap={data.recordMap} />
+      <NotionRenderer recordMap={recordMap} />
     </StyledWrapper>
   )
 }

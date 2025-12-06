@@ -1,7 +1,7 @@
 import { Global as _Global, css, useTheme } from "@emotion/react"
 
 import { ThemeProvider as _ThemeProvider } from "@emotion/react"
-import { pretendard } from "src/assets"
+import { bitstreamCharter } from "src/assets"
 
 export const Global = () => {
   const theme = useTheme()
@@ -9,14 +9,45 @@ export const Global = () => {
   return (
     <_Global
       styles={css`
+        @font-face {
+          font-family: "Bitstream Charter";
+          src: url("/fonts/bitstream-charter/Charter Regular.otf") format("opentype");
+          font-weight: normal;
+          font-style: normal;
+        }
+        @font-face {
+          font-family: "Bitstream Charter";
+          src: url("/fonts/bitstream-charter/Charter Italic.otf") format("opentype");
+          font-weight: normal;
+          font-style: italic;
+        }
+        @font-face {
+          font-family: "Bitstream Charter";
+          src: url("/fonts/bitstream-charter/Charter Bold.otf") format("opentype");
+          font-weight: bold;
+          font-style: normal;
+        }
+        @font-face {
+          font-family: "Bitstream Charter";
+          src: url("/fonts/bitstream-charter/Charter Bold Italic.otf") format("opentype");
+          font-weight: bold;
+          font-style: italic;
+        }
+
         body {
           margin: 0;
           padding: 0;
           color: ${theme.colors.gray12};
           background-color: ${theme.colors.gray2};
-          font-family: ${pretendard.style.fontFamily};
-          font-weight: ${pretendard.style.fontWeight};
-          font-style: ${pretendard.style.fontStyle};
+          font-family: ${bitstreamCharter.style.fontFamily};
+          font-weight: ${bitstreamCharter.style.fontWeight};
+          font-style: ${bitstreamCharter.style.fontStyle};
+          text-align: justify;
+          text-justify: inter-word;
+
+          word-break: normal;
+          overflow-wrap: normal;
+          hyphens: manual;
         }
 
         * {

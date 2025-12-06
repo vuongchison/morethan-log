@@ -6,10 +6,13 @@ import Category from "src/components/Category"
 import styled from "@emotion/styled"
 import NotionRenderer from "../components/NotionRenderer"
 import usePostQuery from "src/hooks/usePostQuery"
+import { ExtendedRecordMap } from "notion-types"
 
-type Props = {}
+type Props = {
+  recordMap: ExtendedRecordMap
+}
 
-const PostDetail: React.FC<Props> = () => {
+const PostDetail: React.FC<Props> = ({ recordMap }) => {
   const data = usePostQuery()
 
   if (!data) return null
@@ -28,7 +31,8 @@ const PostDetail: React.FC<Props> = () => {
         )}
         {data.type[0] === "Post" && <PostHeader data={data} />}
         <div>
-          <NotionRenderer recordMap={data.recordMap} />
+          {!recordMap && <div>Loading...</div>}
+          {recordMap && <NotionRenderer recordMap={recordMap} />}
         </div>
         {data.type[0] === "Post" && (
           <>

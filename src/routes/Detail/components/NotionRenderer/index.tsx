@@ -88,5 +88,20 @@ const StyledWrapper = styled.div`
   }
   .notion-list {
     width: 100%;
+    font-family: "Bitstream Charter", serif;
+  }
+
+  .header,
+  .sub_header,
+  .sub_sub_header,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .notion-block,
+  .notion-text {
+    font-family: "Bitstream Charter", serif;
   }
 `

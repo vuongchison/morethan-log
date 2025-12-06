@@ -4,4 +4,5 @@ export const queryKey = {
   tags: () => ["tags"],
   categories: () => ["categories"],
   post: (slug: string) => ["post", slug],
+  recordMap: (pageId: string) => ["recordMap", pageId],
 }

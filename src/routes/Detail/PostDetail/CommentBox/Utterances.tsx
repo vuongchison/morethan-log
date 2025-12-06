@@ -1,10 +1,8 @@
 import { CONFIG } from "site.config"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import styled from "@emotion/styled"
 import useScheme from "src/hooks/useScheme"
 import { useRouter } from "next/router"
-
-//TODO: useRef?
 
 type Props = {
   issueTerm: string
@@ -13,32 +11,48 @@ type Props = {
 const Utterances: React.FC<Props> = ({ issueTerm }) => {
   const [scheme] = useScheme()
   const router = useRouter()
+  const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    if (!ref.current) return
+
     const theme = `github-${scheme}`
     const script = document.createElement("script")
-    const anchor = document.getElementById("comments")
-    if (!anchor) return
 
-    script.setAttribute("src", "https://utteranc.es/client.js")
-    script.setAttribute("crossorigin", "anonymous")
-    script.setAttribute("async", `true`)
+    script.src = "https://utteranc.es/client.js"
+    script.async = true
+    script.crossOrigin = "anonymous"
     script.setAttribute("issue-term", issueTerm)
     script.setAttribute("theme", theme)
+
     const config: Record<string, string> = CONFIG.utterances.config
     Object.keys(config).forEach((key) => {
       script.setAttribute(key, config[key])
     })
-    anchor.appendChild(script)
+
+    ref.current.appendChild(script)
+
     return () => {
-      anchor.innerHTML = ""
+      ref.current?.removeChild(script)
     }
-  }, [scheme, router])
+  }, [issueTerm, router])
+
+  useEffect(() => {
+    const iframe =
+      document.querySelector<HTMLIFrameElement>(".utterances-frame")
+    if (!iframe) return
+
+    const theme = `github-${scheme}`
+    const message = {
+      type: "set-theme",
+      theme: theme,
+    }
+    iframe.contentWindow?.postMessage(message, "https://utteranc.es")
+  }, [scheme])
+
   return (
     <>
-      <StyledWrapper id="comments">
-        <div className="utterances-frame"></div>
-      </StyledWrapper>
+      <StyledWrapper ref={ref} id="comments" />
     </>
   )
 }
