@@ -1,3 +1,3 @@
 export * from './pretendard'
 export * from './roboto'
-export * from './bitstream-charter'
+export * from './latin-modern-roman'

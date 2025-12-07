@@ -1,7 +1,7 @@
 import { Global as _Global, css, useTheme } from "@emotion/react"
 
 import { ThemeProvider as _ThemeProvider } from "@emotion/react"
-import { bitstreamCharter } from "src/assets"
+import { latinModernRoman } from "src/assets"
 
 export const Global = () => {
   const theme = useTheme()
@@ -10,26 +10,26 @@ export const Global = () => {
     <_Global
       styles={css`
         @font-face {
-          font-family: "Bitstream Charter";
-          src: url("/fonts/bitstream-charter/Charter Regular.otf") format("opentype");
+          font-family: "Latin Modern Roman";
+          src: url("/fonts/latin-modern-roman/lmroman10-regular.otf") format("opentype");
           font-weight: normal;
           font-style: normal;
         }
         @font-face {
-          font-family: "Bitstream Charter";
-          src: url("/fonts/bitstream-charter/Charter Italic.otf") format("opentype");
+          font-family: "Latin Modern Roman";
+          src: url("/fonts/latin-modern-roman/lmroman10-italic.otf") format("opentype");
           font-weight: normal;
           font-style: italic;
         }
         @font-face {
-          font-family: "Bitstream Charter";
-          src: url("/fonts/bitstream-charter/Charter Bold.otf") format("opentype");
+          font-family: "Latin Modern Roman";
+          src: url("/fonts/latin-modern-roman/lmroman10-bold.otf") format("opentype");
           font-weight: bold;
           font-style: normal;
         }
         @font-face {
-          font-family: "Bitstream Charter";
-          src: url("/fonts/bitstream-charter/Charter Bold Italic.otf") format("opentype");
+          font-family: "Latin Modern Roman";
+          src: url("/fonts/latin-modern-roman/lmroman10-bolditalic.otf") format("opentype");
           font-weight: bold;
           font-style: italic;
         }
@@ -39,9 +39,10 @@ export const Global = () => {
           padding: 0;
           color: ${theme.colors.gray12};
           background-color: ${theme.colors.gray2};
-          font-family: ${bitstreamCharter.style.fontFamily};
-          font-weight: ${bitstreamCharter.style.fontWeight};
-          font-style: ${bitstreamCharter.style.fontStyle};
+          font-family: ${latinModernRoman.style.fontFamily};
+          font-weight: ${latinModernRoman.style.fontWeight};
+          font-style: ${latinModernRoman.style.fontStyle};
+          // letter-spacing: 0.03em;
           text-align: justify;
           text-justify: inter-word;
 
@@ -64,6 +65,7 @@ export const Global = () => {
           margin: 0;
           font-weight: inherit;
           font-style: inherit;
+          text-align: left;
         }
 
         a {
