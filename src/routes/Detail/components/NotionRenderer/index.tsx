@@ -1,8 +1,10 @@
 import { FC, ReactNode } from "react"
 import Image from "next/image"
 import katex from "katex"
+import Prism from "prismjs/prism"
 import styled from "@emotion/styled"
 import { NotionBlock } from "src/apis/notion-client/officialApi"
+import { useTheme } from "@emotion/react"
 import "katex/dist/katex.min.css"
 
 type Props = {
@@ -85,8 +87,36 @@ function renderBlock(block: NotionBlock): ReactNode {
       return <aside>{data.icon?.emoji && <span>{data.icon.emoji} </span>}{text}{children}</aside>
     case "divider":
       return <hr />
-    case "code":
-      return <pre><code>{blockText(block).map((item: any) => item.plain_text).join("")}</code></pre>
+    case "code": {
+      const source = blockText(block).map((item: any) => item.plain_text).join("")
+      const language = String(data.language ?? "plain").toLowerCase()
+      const aliases: Record<string, string> = {
+        "c++": "cpp",
+        "c#": "csharp",
+        js: "javascript",
+        py: "python",
+        plaintext: "plain",
+        text: "plain",
+      }
+      const prismLanguage = aliases[language] ?? language
+      const grammar = Prism.languages[prismLanguage]
+      const highlighted = grammar
+        ? Prism.highlight(source, grammar, prismLanguage)
+        : undefined
+
+      return (
+        <pre>
+          <code
+            className={grammar ? `language-${prismLanguage}` : undefined}
+            dangerouslySetInnerHTML={
+              highlighted === undefined ? undefined : { __html: highlighted }
+            }
+          >
+            {highlighted === undefined ? source : undefined}
+          </code>
+        </pre>
+      )
+    }
     case "image": {
       const url = data.file?.url ?? data.external?.url
       const caption = data.caption?.map((item: any) => item.plain_text).join("") ?? ""
@@ -153,13 +183,19 @@ function Blocks({ blocks }: { blocks: NotionBlock[] }) {
   return <>{output}</>
 }
 
-const NotionRenderer: FC<Props> = ({ recordMap }) => (
-  <StyledWrapper><Blocks blocks={recordMap ?? []} /></StyledWrapper>
-)
+const NotionRenderer: FC<Props> = ({ recordMap }) => {
+  const theme = useTheme()
+
+  return (
+    <StyledWrapper scheme={theme.scheme}>
+      <Blocks blocks={recordMap ?? []} />
+    </StyledWrapper>
+  )
+}
 
 export default NotionRenderer
 
-const StyledWrapper = styled.div`
+const StyledWrapper = styled.div<{ scheme: "light" | "dark" }>`
   font-family: "Latin Modern Roman", serif;
   line-height: 1.7;
 
@@ -176,7 +212,34 @@ const StyledWrapper = styled.div`
   aside { padding: 0.75rem 1rem; background: rgba(127, 127, 127, 0.12); }
   img { display: block; max-width: 100%; height: auto; margin: 0 auto; }
   figcaption { text-align: center; opacity: 0.75; font-size: 0.9rem; }
-  pre { overflow-x: auto; padding: 1rem; background: rgba(127, 127, 127, 0.12); }
+  pre {
+    overflow-x: auto;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: ${({ scheme }) => scheme === "light" ? "#f3f4f6" : "#20242c"};
+    color: ${({ scheme }) => scheme === "light" ? "#242833" : "#e4e7ed"};
+    tab-size: 4;
+    text-align: left;
+  }
+  pre code { color: inherit; font-family: "SFMono-Regular", Consolas, monospace; }
+  .token.comment,
+  .token.prolog,
+  .token.doctype,
+  .token.cdata { color: ${({ scheme }) => scheme === "light" ? "#687386" : "#9aa4b2"}; }
+  .token.punctuation { color: ${({ scheme }) => scheme === "light" ? "#4b5563" : "#c2c8d0"}; }
+  .token.keyword,
+  .token.selector,
+  .token.important { color: ${({ scheme }) => scheme === "light" ? "#0756a6" : "#8ab4f8"}; }
+  .token.string,
+  .token.attr-value,
+  .token.char,
+  .token.builtin { color: ${({ scheme }) => scheme === "light" ? "#18733c" : "#8bd49c"}; }
+  .token.function,
+  .token.class-name { color: ${({ scheme }) => scheme === "light" ? "#8a4b08" : "#f0c674"}; }
+  .token.number,
+  .token.boolean,
+  .token.constant { color: ${({ scheme }) => scheme === "light" ? "#9c3d70" : "#d9a0d0"}; }
+  .token.operator { color: ${({ scheme }) => scheme === "light" ? "#343a46" : "#d6dae1"}; }
   .display-equation { overflow-x: auto; text-align: center; }
   table { width: 100%; border-collapse: collapse; }
   td { border: 1px solid rgba(127, 127, 127, 0.4); padding: 0.5rem; }
