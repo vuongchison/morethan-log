@@ -1,5 +1,18 @@
 const NOTION_API_BASE = "https://api.notion.com/v1"
 const NOTION_API_VERSION = "2025-09-03"
+const PAGE_CACHE_TTL = 45 * 60 * 1000
+const DATABASE_CACHE_TTL = 5 * 60 * 1000
+const MAX_CONCURRENT_REQUESTS = 4
+
+type CacheEntry<T> = {
+  expiresAt: number
+  promise: Promise<T>
+}
+
+const pageCache = new Map<string, CacheEntry<NotionBlock[]>>()
+const databaseCache = new Map<string, CacheEntry<any[]>>()
+const requestQueue: Array<() => void> = []
+let activeRequests = 0
 
 export type NotionBlock = {
   id: string
@@ -16,6 +29,45 @@ class NotionApiError extends Error {
   }
 }
 
+function cached<T>(
+  cache: Map<string, CacheEntry<T>>,
+  key: string,
+  ttl: number,
+  loader: () => Promise<T>
+) {
+  const existing = cache.get(key)
+  if (existing && existing.expiresAt > Date.now()) return existing.promise
+  if (existing) cache.delete(key)
+
+  const promise = loader().catch((error) => {
+    if (cache.get(key)?.promise === promise) cache.delete(key)
+    throw error
+  })
+  cache.set(key, { expiresAt: Date.now() + ttl, promise })
+  return promise
+}
+
+async function withRequestSlot<T>(request: () => Promise<T>): Promise<T> {
+  if (activeRequests >= MAX_CONCURRENT_REQUESTS) {
+    await new Promise<void>((resolve) => requestQueue.push(resolve))
+  } else {
+    activeRequests++
+  }
+
+  try {
+    return await request()
+  } finally {
+    const nextRequest = requestQueue.shift()
+    if (nextRequest) nextRequest()
+    else activeRequests--
+  }
+}
+
+export function invalidateNotionCache() {
+  pageCache.clear()
+  databaseCache.clear()
+}
+
 function getHeaders() {
   const token = process.env.NOTION_API_KEY
   if (!token) {
@@ -30,11 +82,13 @@ function getHeaders() {
 }
 
 async function notionRequest<T>(path: string, body?: object): Promise<T> {
-  const response = await fetch(`${NOTION_API_BASE}${path}`, {
-    method: body ? "POST" : "GET",
-    headers: getHeaders(),
-    body: body ? JSON.stringify(body) : undefined,
-  })
+  const response = await withRequestSlot(() =>
+    fetch(`${NOTION_API_BASE}${path}`, {
+      method: body ? "POST" : "GET",
+      headers: getHeaders(),
+      body: body ? JSON.stringify(body) : undefined,
+    })
+  )
 
   if (!response.ok) {
     const details = await response.json().catch(() => null)
@@ -88,6 +142,12 @@ async function getDataSourceId(databaseId: string) {
 }
 
 export async function queryDatabase(databaseId: string) {
+  return cached(databaseCache, databaseId, DATABASE_CACHE_TTL, async () => {
+    return queryDatabaseUncached(databaseId)
+  })
+}
+
+async function queryDatabaseUncached(databaseId: string) {
   let dataSourceId: string
   try {
     dataSourceId = await getDataSourceId(databaseId)
@@ -114,15 +174,21 @@ export async function queryDatabase(databaseId: string) {
 }
 
 export async function getPageBlocks(pageId: string): Promise<NotionBlock[]> {
+  return cached(pageCache, pageId, PAGE_CACHE_TTL, () => getPageBlocksUncached(pageId))
+}
+
+async function getPageBlocksUncached(pageId: string): Promise<NotionBlock[]> {
   const blocks = await getAllResults<NotionBlock>(
     `/blocks/${pageId}/children?page_size=100`
   )
 
-  for (const block of blocks) {
-    if (block.has_children) {
-      block.children = await getPageBlocks(block.id)
-    }
-  }
+  await Promise.all(
+    blocks
+      .filter((block) => block.has_children)
+      .map(async (block) => {
+        block.children = await getPageBlocks(block.id)
+      })
+  )
 
   return blocks
 }

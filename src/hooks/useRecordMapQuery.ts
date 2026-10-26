@@ -12,6 +12,9 @@ const fetchRecordMap = async (pageId: string) => {
 const useRecordMapQuery = (pageId: string) => {
   return useQuery(queryKey.recordMap(pageId), () => fetchRecordMap(pageId), {
     enabled: !!pageId,
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 45 * 60 * 1000,
+    refetchOnWindowFocus: false,
   })
 }
 

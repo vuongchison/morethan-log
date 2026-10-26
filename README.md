@@ -45,6 +45,19 @@ Next.js static blog using Notion as a Content Management System (CMS). Supports 
    - `NEXT_PUBLIC_NAVER_SITE_VERIFICATION` : For Naver search advisor Plugin.
    - `NEXT_PUBLIC_UTTERANCES_REPO` : For Utterances Plugin.
 
+### Notion Webhook Revalidation
+
+The app exposes `POST /api/notion-webhook` for Notion webhook subscriptions. It verifies signed events, clears the server-side Notion cache, and revalidates the home page, sitemap, and current post routes.
+
+1. Deploy the app to a public HTTPS URL. Notion cannot send webhooks to localhost.
+2. In [Notion connections](https://app.notion.com/developers/connections), open the connection used by the app and create a webhook subscription with `https://YOUR_DOMAIN/api/notion-webhook` as the URL.
+3. Subscribe to `page.content_updated`, `page.created`, `page.deleted`, and `data_source.schema_updated`.
+4. Notion sends a one-time verification request. To capture its token, temporarily set `NOTION_WEBHOOK_LOG_CHALLENGE=true` in the deployment environment and redeploy. Create the subscription, then copy the token from the hosting function logs and paste it into Notion's verification dialog.
+5. Save the token as `NOTION_WEBHOOK_VERIFICATION_TOKEN` in the deployment environment, remove `NOTION_WEBHOOK_LOG_CHALLENGE`, and redeploy before completing verification. The token is used to validate every webhook signature; never leave challenge logging enabled.
+6. Edit a connected Notion page and check webhook delivery status. Content-update events may be aggregated and take around a minute to arrive.
+
+For local development, expose the local server with an HTTPS tunnel and use the tunnel URL as the webhook URL. Do not configure the subscription against `localhost`.
+
 ## 10 Steps to build your own morethan-log (by 23.06.23)
 
 <details>

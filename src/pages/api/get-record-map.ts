@@ -11,6 +11,8 @@ export default async function handler(
     return res.status(400).json({ error: "pageId is required" })
   }
 
+  res.setHeader("Cache-Control", "private, no-store, max-age=0")
+
   try {
     const recordMap = await getRecordMap(pageId as string)
     res.status(200).json(recordMap)
