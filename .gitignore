@@ -39,3 +39,5 @@ yarn-error.log*
 /.firebase
 .vscode/launch.json
 package-lock.json
+public/sitemap.xml
+public/robots.txt

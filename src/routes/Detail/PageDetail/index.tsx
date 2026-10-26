@@ -1,9 +1,9 @@
 import React from "react"
 import styled from "@emotion/styled"
 import NotionRenderer from "../components/NotionRenderer"
-import { ExtendedRecordMap } from "notion-types"
+import { NotionBlock } from "src/apis/notion-client/officialApi"
 type Props = {
-  recordMap: ExtendedRecordMap
+  recordMap: NotionBlock[]
 }
 
 const PageDetail: React.FC<Props> = ({ recordMap }) => {

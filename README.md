@@ -32,12 +32,14 @@ Next.js static blog using Notion as a Content Management System (CMS). Supports 
 
 1. Star this repo.
 2. [Fork](https://github.com/morethanmin/morethan-log/fork) the repo to your Profile.
-3. Duplicate [this Notion template](https://morethanmin.notion.site/12c38b5f459d4eb9a759f92fba6cea36?v=2e7962408e3842b2a1a801bf3546edda), and Share to Web.
-4. Copy the Web Link and keep note of the Notion Page Id from the Link which will be in this format [username.notion.site/`NOTION_PAGE_ID`?v=`VERSION_ID`]. 
-5. Clone your forked repo and then customize `site.config.js` based on your preference.
-6. Deploy on Vercel, with the following environment variables.
+3. Duplicate [this Notion template](https://morethanmin.notion.site/12c38b5f459d4eb9a759f92fba6cea36?v=2e7962408e3842b2a1a801bf3546edda).
+4. Create an integration at [My integrations](https://www.notion.so/profile/integrations), copy its secret, and add the integration as a connection to the blog database.
+5. Copy the blog database ID from its Notion URL. If configuring a page that contains the database, the app will look for a child database.
+6. Clone your forked repo and customize `site.config.js` based on your preference.
+7. Set these environment variables locally in `.env.local` and in your deployment environment:
 
-   - `NOTION_PAGE_ID` (Required): The Notion page Id got from the Share to Web URL. This is not the entire URL, but just the NOTION_PAGE_ID part as shown above.
+   - `NOTION_API_KEY` (Required): The secret for your Notion integration. Keep this server-side; do not use a `NEXT_PUBLIC_` prefix.
+   - `NOTION_DATABASE_ID` (Required): The blog database ID, or the ID of a page containing the database. A `NOTION_PAGE_ID` value is accepted as a fallback for existing configurations.
    - `NEXT_PUBLIC_GOOGLE_MEASUREMENT_ID` : For Google analytics Plugin.
    - `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` : For Google search console Plugin.
    - `NEXT_PUBLIC_NAVER_SITE_VERIFICATION` : For Naver search advisor Plugin.

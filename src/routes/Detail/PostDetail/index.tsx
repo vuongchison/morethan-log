@@ -6,10 +6,10 @@ import Category from "src/components/Category"
 import styled from "@emotion/styled"
 import NotionRenderer from "../components/NotionRenderer"
 import usePostQuery from "src/hooks/usePostQuery"
-import { ExtendedRecordMap } from "notion-types"
+import { NotionBlock } from "src/apis/notion-client/officialApi"
 
 type Props = {
-  recordMap: ExtendedRecordMap
+  recordMap: NotionBlock[]
 }
 
 const PostDetail: React.FC<Props> = ({ recordMap }) => {

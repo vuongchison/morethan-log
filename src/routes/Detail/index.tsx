@@ -4,7 +4,6 @@ import PageDetail from "./PageDetail"
 import styled from "@emotion/styled"
 import usePostQuery from "src/hooks/usePostQuery"
 import useRecordMapQuery from "src/hooks/useRecordMapQuery"
-import { NotionRenderer } from "react-notion-x"
 
 type Props = {}
 
